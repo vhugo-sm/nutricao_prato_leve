@@ -1,0 +1,548 @@
+<title>Prato Leve</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: cabeçalho fixo, abertura curta, abas de nível que trocam o painel (prato, regras, cardápio, hábitos), calculadora e dúvidas. */
+:root {
+  --bg: #F4F7F2;
+  --surface: #FFFFFF;
+  --ink: #14231A;
+  --muted: #55665C;
+  --line: #D9E2D7;
+  --brand: #1B6B47;
+  --brand-ink: #FFFFFF;
+  --soft: #E6EFE6;
+  --c-veg: #3F9E63;
+  --c-prot: #E2702A;
+  --c-carb: #E6C150;
+  --c-fat: #9A7ED3;
+  --warn-bg: #FFF3E2;
+  --warn-ink: #7A4310;
+  --display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E1812; --surface: #15231B; --ink: #E7F0E9; --muted: #9CB0A3; --line: #27392E;
+    --brand: #5FCB8F; --brand-ink: #08170E; --soft: #1C2E23;
+    --c-veg: #4DB574; --c-prot: #F0894A; --c-carb: #D9B54E; --c-fat: #AE93E6;
+    --warn-bg: #2E2414; --warn-ink: #F2CC95;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E1812; --surface: #15231B; --ink: #E7F0E9; --muted: #9CB0A3; --line: #27392E;
+  --brand: #5FCB8F; --brand-ink: #08170E; --soft: #1C2E23;
+  --c-veg: #4DB574; --c-prot: #F0894A; --c-carb: #D9B54E; --c-fat: #AE93E6;
+  --warn-bg: #2E2414; --warn-ink: #F2CC95;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--text); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 48px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--brand); }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 1080px; margin-inline: auto; }
+
+/* Cabeçalho */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--bg); border-bottom: 1px solid var(--line); margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px)); }
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; flex-wrap: wrap; }
+.brand { font-family: var(--display); font-weight: 700; font-size: 1.25rem; color: var(--ink); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.brand i { width: 20px; height: 20px; border-radius: 50%; background: conic-gradient(var(--c-veg) 0 50%, var(--c-prot) 0 75%, var(--c-carb) 0 100%); display: inline-block; }
+.top nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.top nav a { color: var(--ink); text-decoration: none; padding: 8px 12px; border-radius: 999px; font-weight: 500; font-size: .95rem; }
+.top nav a:hover { background: var(--soft); }
+
+/* Abertura */
+.hero { padding-block: 48px 32px; display: grid; gap: 20px; max-width: 760px; }
+.eyebrow { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); font-weight: 600; }
+.hero h1 { font-size: clamp(2rem, 5.5vw, 3.4rem); font-weight: 700; }
+.hero p { color: var(--muted); font-size: 1.1rem; max-width: 60ch; }
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: var(--brand); color: var(--brand-ink); font-weight: 600; text-decoration: none; border: 0; cursor: pointer; font-size: 1rem; font-family: var(--text); width: fit-content; }
+.btn:hover { filter: brightness(1.08); }
+
+section { scroll-margin-top: 72px; padding-block: 28px; }
+.sec-head { display: grid; gap: 8px; margin-bottom: 20px; max-width: 62ch; }
+.sec-head h2 { font-size: clamp(1.5rem, 3.5vw, 2.1rem); }
+.sec-head p { color: var(--muted); }
+
+/* Abas de nível */
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tab { text-align: left; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 16px; padding: 16px 18px; cursor: pointer; font-family: var(--text); display: grid; gap: 4px; min-width: 0; }
+.tab:hover { border-color: var(--brand); }
+.tab .n { font-family: var(--display); font-size: 1.25rem; font-weight: 700; }
+.tab .d { font-size: .9rem; color: var(--muted); }
+.tab[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.tab[aria-selected="true"] .d { color: var(--brand-ink); opacity: .9; }
+.which { margin-top: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px 16px; }
+.which summary { cursor: pointer; padding: 10px 0; font-weight: 600; }
+.which ul { margin: 0 0 12px; padding-left: 20px; color: var(--muted); display: grid; gap: 6px; }
+
+/* Painel */
+.panel { margin-top: 20px; display: grid; gap: 20px; }
+.lead { font-size: 1.15rem; max-width: 62ch; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px; align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 22px; min-width: 0; }
+.card h3 { font-size: 1.25rem; margin-bottom: 14px; }
+.plate-wrap { display: grid; justify-items: center; gap: 18px; }
+.plate { width: min(260px, 100%); aspect-ratio: 1; border-radius: 50%; box-shadow: 0 0 0 10px var(--soft), 0 0 0 11px var(--line); margin: 12px; }
+.legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; width: 100%; }
+.legend li { display: flex; align-items: center; gap: 10px; }
+.legend .sw { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+.legend .pc { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+.seg { display: inline-flex; background: var(--soft); border-radius: 999px; padding: 4px; gap: 4px; }
+.seg button { border: 0; background: transparent; color: var(--ink); font-family: var(--text); font-size: .9rem; font-weight: 500; padding: 8px 14px; border-radius: 999px; cursor: pointer; min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); }
+.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.rules li { display: grid; gap: 2px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.rules li:last-child { border-bottom: 0; padding-bottom: 0; }
+.rules strong { font-family: var(--display); font-size: 1.1rem; }
+.rules span { color: var(--muted); }
+.meals { margin: 0; display: grid; gap: 14px; }
+.meals div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; }
+.meals dt { font-weight: 600; color: var(--brand); }
+.meals dd { margin: 0; }
+.habit { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; cursor: pointer; }
+.habit input { width: 22px; height: 22px; accent-color: var(--brand); margin: 2px 0 0; flex: none; }
+.habits { list-style: none; margin: 0; padding: 0; }
+.habits li { border-bottom: 1px solid var(--line); }
+.habits li:last-child { border-bottom: 0; }
+.prog { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; font-variant-numeric: tabular-nums; font-weight: 600; }
+progress { flex: 1; height: 10px; border-radius: 999px; border: 0; background: var(--soft); overflow: hidden; accent-color: var(--brand); }
+progress::-webkit-progress-bar { background: var(--soft); }
+progress::-webkit-progress-value { background: var(--brand); }
+progress::-moz-progress-bar { background: var(--brand); }
+.link-btn { background: none; border: 0; color: var(--brand); cursor: pointer; font-family: var(--text); font-size: .9rem; padding: 6px 0; text-decoration: underline; }
+.swaps { width: 100%; border-collapse: collapse; }
+.swaps th { text-align: left; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 0 12px 8px 0; }
+.swaps td { padding: 12px 12px 12px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.swaps td:first-child { color: var(--muted); width: 38%; }
+.table-scroll { overflow-x: auto; }
+
+/* Calculadora */
+.form { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-size: .85rem; font-weight: 600; }
+.field input, .field select { font-family: var(--text); font-size: 1rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 46px; width: 100%; }
+.field.wide { grid-column: span 2; }
+.results { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.res { background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 2px; min-width: 0; }
+.res small { color: var(--muted); font-size: .8rem; }
+.res b { font-family: var(--display); font-size: 1.6rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.res em { font-style: normal; font-size: .8rem; color: var(--muted); }
+.res.kcal { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.res.kcal small, .res.kcal em { color: var(--brand-ink); opacity: .9; }
+.mbar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; margin-top: 18px; background: var(--soft); }
+.mbar span { display: block; height: 100%; }
+.note { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); font-size: .92rem; }
+.muted { color: var(--muted); font-size: .9rem; margin-top: 12px; }
+
+/* Dúvidas */
+.faq { display: grid; gap: 10px; max-width: 760px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px 18px; }
+.faq summary { cursor: pointer; font-weight: 600; padding: 12px 0; }
+.faq p { color: var(--muted); padding-bottom: 14px; }
+footer { padding-block: 32px 8px; color: var(--muted); font-size: .9rem; border-top: 1px solid var(--line); margin-top: 24px; max-width: 70ch; }
+
+@media (max-width: 860px) {
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .res.kcal { grid-column: span 2; }
+}
+@media (max-width: 640px) {
+  .tabs { grid-template-columns: minmax(0, 1fr); }
+  .meals div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .hero { padding-block: 32px 20px; }
+  .card { padding: 18px; }
+}
+</style>
+
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#inicio"><i aria-hidden="true"></i>Prato Leve</a>
+    <nav aria-label="Seções">
+      <a href="#niveis">Níveis</a>
+      <a href="#calculadora">Calculadora</a>
+      <a href="#duvidas">Dúvidas</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap" id="inicio">
+  <div class="hero">
+    <p class="eyebrow">Nutrição para a rotina real</p>
+    <h1>Coma bem sem viver de planilha.</h1>
+    <p>Três caminhos, do primeiro passo à contagem de macros. Escolha o seu nível, monte o prato do dia e ajuste com o tempo. Sem cortar grupos de alimentos e sem culpa.</p>
+    <a class="btn" href="#niveis">Escolher meu nível</a>
+  </div>
+
+  <section id="niveis" aria-labelledby="t-niveis">
+    <div class="sec-head">
+      <h2 id="t-niveis">Qual é o seu ponto de partida?</h2>
+      <p>Toque em um nível para ver o prato, as regras, um dia de exemplo e os hábitos da semana.</p>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Níveis">
+      <button class="tab" role="tab" id="tab-iniciante" data-level="iniciante" aria-selected="true" aria-controls="painel">
+        <span class="n">Iniciante</span><span class="d">Sem contar nada. Foco em montar o prato.</span>
+      </button>
+      <button class="tab" role="tab" id="tab-intermediario" data-level="intermediario" aria-selected="false" aria-controls="painel" tabindex="-1">
+        <span class="n">Intermediário</span><span class="d">Porções pela mão e planejamento da semana.</span>
+      </button>
+      <button class="tab" role="tab" id="tab-avancado" data-level="avancado" aria-selected="false" aria-controls="painel" tabindex="-1">
+        <span class="n">Avançado</span><span class="d">Calorias e macros, com ajustes por dados.</span>
+      </button>
+    </div>
+
+    <details class="which">
+      <summary>Não sei qual é o meu nível</summary>
+      <ul>
+        <li><strong>Iniciante:</strong> nunca seguiu um plano, ou costuma desistir em poucas semanas.</li>
+        <li><strong>Intermediário:</strong> já come razoavelmente bem, treina 2 a 4 vezes por semana e quer resultado mais claro.</li>
+        <li><strong>Avançado:</strong> já pesa ou mede as porções e treina com regularidade há mais de um ano.</li>
+      </ul>
+    </details>
+
+    <div class="panel" id="painel" role="tabpanel" aria-labelledby="tab-iniciante" tabindex="0"></div>
+  </section>
+
+  <section id="calculadora" aria-labelledby="t-calc">
+    <div class="sec-head">
+      <h2 id="t-calc">Calculadora de metas diárias</h2>
+      <p>Estimativa de calorias, macronutrientes e água. Os valores já preenchidos são um exemplo; troque pelos seus.</p>
+    </div>
+    <div class="card">
+      <form class="form" id="calc" novalidate>
+        <div class="field">
+          <label for="sexo">Sexo</label>
+          <select id="sexo"><option value="f">Feminino</option><option value="m">Masculino</option></select>
+        </div>
+        <div class="field">
+          <label for="idade">Idade (anos)</label>
+          <input id="idade" type="number" inputmode="numeric" min="14" max="90" value="32">
+        </div>
+        <div class="field">
+          <label for="peso">Peso (kg)</label>
+          <input id="peso" type="number" inputmode="decimal" min="35" max="250" step="0.1" value="68">
+        </div>
+        <div class="field">
+          <label for="altura">Altura (cm)</label>
+          <input id="altura" type="number" inputmode="numeric" min="120" max="230" value="165">
+        </div>
+        <div class="field wide">
+          <label for="atividade">Atividade na semana</label>
+          <select id="atividade">
+            <option value="1.2">Pouca: trabalho sentado, sem treino</option>
+            <option value="1.375">Leve: treino ou caminhada 1 a 3 dias</option>
+            <option value="1.55" selected>Moderada: treino 3 a 5 dias</option>
+            <option value="1.725">Alta: treino 6 a 7 dias ou trabalho físico</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="objetivo">Objetivo</label>
+          <select id="objetivo">
+            <option value="0.85">Emagrecer</option>
+            <option value="1" selected>Manter o peso</option>
+            <option value="1.1">Ganhar massa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="nivelCalc">Nível</label>
+          <select id="nivelCalc">
+            <option value="iniciante">Iniciante</option>
+            <option value="intermediario">Intermediário</option>
+            <option value="avancado">Avançado</option>
+          </select>
+        </div>
+      </form>
+      <div id="resultado" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="duvidas" aria-labelledby="t-duv">
+    <div class="sec-head"><h2 id="t-duv">Dúvidas comuns</h2></div>
+    <div class="faq">
+      <details><summary>Preciso contar calorias?</summary><p>No nível iniciante, não. O prato já organiza as porções. A contagem faz mais sentido no avançado, quando você quer ajustar o resultado com precisão.</p></details>
+      <details><summary>Posso comer fora e em festas?</summary><p>Pode. Procure a proteína e os vegetais primeiro, sirva o resto com calma e aproveite. Uma refeição fora do plano não desfaz a semana.</p></details>
+      <details><summary>Em quanto tempo vejo resultado?</summary><p>Os hábitos costumam ficar mais fáceis em 2 a 4 semanas. Para emagrecer com saúde, uma perda de 0,25% a 1% do peso por semana é uma faixa usada com frequência.</p></details>
+      <details><summary>Quando falar com um nutricionista?</summary><p>Antes de começar, se você tem alguma condição de saúde, está grávida ou amamentando, usa medicação contínua ou já teve transtorno alimentar. O profissional adapta o plano a você.</p></details>
+    </div>
+  </section>
+
+  <footer>Conteúdo informativo. Não substitui o acompanhamento de nutricionista ou médico.</footer>
+</main>
+
+<script>
+(function () {
+  var LEVELS = {
+    iniciante: {
+      nome: "Iniciante",
+      resumo: "Objetivo: criar rotina. Nada de pesar comida nem cortar grupos inteiros.",
+      plates: [{ label: "Prato do dia a dia", parts: { veg: 50, prot: 25, carb: 25, fat: 0 } }],
+      rules: [
+        ["Metade do prato é vegetal", "Salada, legumes cozidos ou refogados. Varie à vontade; o que importa é o volume."],
+        ["Arroz e feijão continuam", "Um pouco menos de arroz e o mesmo feijão. O feijão entrega proteína e fibra."],
+        ["Regra 80/20", "Em 8 de cada 10 refeições, siga o prato. Nas outras 2, coma o que tiver vontade."],
+        ["Água primeiro", "Um copo ao acordar e uma garrafa por turno do dia."]
+      ],
+      menu: [
+        ["Café da manhã", "Pão integral com ovo mexido e uma fruta"],
+        ["Almoço", "Arroz, feijão, frango grelhado, salada de folhas e legumes"],
+        ["Lanche", "Iogurte natural com banana"],
+        ["Jantar", "Omelete de legumes, salada e uma fatia de pão"]
+      ],
+      habits: [
+        "Beber água ao longo de todo o dia",
+        "Incluir um vegetal no almoço e no jantar",
+        "Comer sentado, sem tela, em pelo menos uma refeição",
+        "Trocar refrigerante por água ou água com gás",
+        "Dormir 7 horas ou mais"
+      ],
+      swaps: [
+        ["Refrigerante", "Água com gás e limão"],
+        ["Biscoito recheado", "Fruta com um punhado de castanhas"],
+        ["Salgadinho", "Pipoca feita em casa"],
+        ["Suco de caixinha", "Fruta inteira"]
+      ]
+    },
+    intermediario: {
+      nome: "Intermediário",
+      resumo: "Objetivo: ganhar consistência e enxergar porções, usando a própria mão como medida.",
+      plates: [{ label: "Prato com proteína em foco", parts: { veg: 40, prot: 30, carb: 25, fat: 5 } }],
+      rules: [
+        ["Proteína em toda refeição", "Uma palma por refeição: ovos, frango, peixe, carne magra, tofu ou feijão com arroz."],
+        ["A mão como medida", "Palma é a proteína, punho é o carboidrato cozido, polegar é a gordura e dois punhos são os vegetais."],
+        ["Planeje a semana", "Escolha um dia para cozinhar proteína e base de carboidrato para 3 a 4 dias."],
+        ["Refeição livre combinada", "Até duas por semana, escolhidas com antecedência e comidas com prazer."],
+        ["Fibras todo dia", "Mire em cerca de 25 g por dia com frutas, legumes, aveia e leguminosas."]
+      ],
+      menu: [
+        ["Café da manhã", "Iogurte natural, aveia, morango e 2 ovos mexidos"],
+        ["Almoço", "Arroz, feijão, patinho moído, brócolis e cenoura"],
+        ["Lanche", "Sanduíche de pão integral com atum e tomate"],
+        ["Jantar", "Salmão assado, batata-doce e salada de folhas"]
+      ],
+      habits: [
+        "Colocar proteína nas refeições principais",
+        "Cozinhar em lote uma vez na semana",
+        "Ler o rótulo de 3 produtos novos",
+        "Treinar ou caminhar em 3 dias",
+        "Comer frutas ou vegetais em todas as refeições",
+        "Limitar a duas refeições livres"
+      ],
+      swaps: [
+        ["Arroz branco", "Metade arroz, metade legumes ou quinoa"],
+        ["Maionese", "Iogurte natural temperado"],
+        ["Frango empanado", "Frango grelhado com ervas"],
+        ["Barrinha de cereal", "Banana com pasta de amendoim"]
+      ]
+    },
+    avancado: {
+      nome: "Avançado",
+      resumo: "Objetivo: ajustar calorias e macros com dados. Você pesa os alimentos e revisa a média da semana.",
+      plates: [
+        { label: "Dia de treino", parts: { veg: 25, prot: 30, carb: 40, fat: 5 } },
+        { label: "Dia de descanso", parts: { veg: 40, prot: 30, carb: 20, fat: 10 } }
+      ],
+      rules: [
+        ["Proteína de 1,6 a 2,2 g por kg", "Divida em 3 a 5 refeições com 25 a 40 g cada."],
+        ["Carboidrato segue o treino", "Mais nos dias pesados, menos nos de descanso, mantendo a média semanal."],
+        ["Pese e registre", "Balança e app de registro por 2 a 4 semanas calibram o olho para as porções."],
+        ["Ajuste pela tendência", "Compare a média de peso de 7 dias. Mude 100 a 200 kcal só se ficar parado por 2 semanas."],
+        ["Pausa de dieta", "A cada 8 a 12 semanas em déficit, passe 1 a 2 semanas na manutenção."]
+      ],
+      menu: [
+        ["Café da manhã", "3 ovos, 60 g de aveia, 1 banana e café"],
+        ["Almoço", "150 g de peito de frango, 200 g de arroz cozido, 100 g de feijão e legumes"],
+        ["Lanche", "Iogurte grego, mel e granola"],
+        ["Jantar", "180 g de tilápia, 250 g de batata e salada com 1 colher de azeite"]
+      ],
+      habits: [
+        "Pesar e registrar as refeições",
+        "Bater a meta de proteína do dia",
+        "Anotar o peso pela manhã em 4 dias",
+        "Dormir de 7 a 9 horas",
+        "Revisar a média da semana no domingo"
+      ],
+      swaps: [
+        ["Azeite a olho", "Meça: 1 colher de sopa tem cerca de 100 kcal"],
+        ["Lanche aleatório", "Lanche planejado com 20 a 30 g de proteína"],
+        ["Álcool no fim de semana", "Defina um limite e inclua no registro"],
+        ["Beliscar na cozinha", "Porção servida no prato e registrada"]
+      ]
+    }
+  };
+  var ORDER = ["iniciante", "intermediario", "avancado"];
+  var KEYS = [["veg", "Vegetais"], ["prot", "Proteína"], ["carb", "Carboidrato"], ["fat", "Gorduras boas"]];
+  var current = "iniciante";
+  var plateIdx = 0;
+
+  var panel = document.getElementById("painel");
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+
+  function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+  function load(key) { try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+
+  function gradient(parts) {
+    var acc = 0, stops = [];
+    KEYS.forEach(function (k) {
+      var v = parts[k[0]];
+      if (!v) return;
+      acc += v;
+      stops.push("var(--c-" + k[0] + ") 0 " + acc + "%");
+    });
+    return "conic-gradient(" + stops.join(", ") + ")";
+  }
+
+  function render() {
+    var L = LEVELS[current];
+    var plate = L.plates[plateIdx] || L.plates[0];
+    var saved = load("pratoleve:" + current) || [];
+    var done = L.habits.filter(function (_, i) { return saved[i]; }).length;
+
+    var toggle = "";
+    if (L.plates.length > 1) {
+      toggle = '<div class="seg" role="group" aria-label="Tipo de dia">' + L.plates.map(function (p, i) {
+        return '<button type="button" data-plate="' + i + '" aria-pressed="' + (i === plateIdx) + '">' + p.label + "</button>";
+      }).join("") + "</div>";
+    }
+    var legend = KEYS.filter(function (k) { return plate.parts[k[0]]; }).map(function (k) {
+      return '<li><span class="sw" style="background:var(--c-' + k[0] + ')"></span>' + k[1] + '<span class="pc">' + plate.parts[k[0]] + "%</span></li>";
+    }).join("");
+
+    panel.innerHTML =
+      '<p class="lead">' + L.resumo + "</p>" +
+      '<div class="grid2">' +
+        '<div class="card"><h3>' + plate.label + '</h3><div class="plate-wrap">' + toggle +
+          '<div class="plate" role="img" aria-label="Prato dividido: ' + KEYS.filter(function (k) { return plate.parts[k[0]]; }).map(function (k) { return k[1] + " " + plate.parts[k[0]] + "%"; }).join(", ") + '" style="background:' + gradient(plate.parts) + '"></div>' +
+          '<ul class="legend">' + legend + "</ul></div></div>" +
+        '<div class="card"><h3>Regras do nível</h3><ol class="rules">' + L.rules.map(function (r) {
+          return "<li><strong>" + r[0] + "</strong><span>" + r[1] + "</span></li>";
+        }).join("") + "</ol></div>" +
+      "</div>" +
+      '<div class="grid2">' +
+        '<div class="card"><h3>Um dia de exemplo</h3><dl class="meals">' + L.menu.map(function (m) {
+          return "<div><dt>" + m[0] + "</dt><dd>" + m[1] + "</dd></div>";
+        }).join("") + "</dl></div>" +
+        '<div class="card"><h3>Hábitos desta semana</h3>' +
+          '<div class="prog"><span id="progTxt">' + done + " de " + L.habits.length + '</span><progress id="prog" max="' + L.habits.length + '" value="' + done + '"></progress></div>' +
+          '<ul class="habits">' + L.habits.map(function (h, i) {
+            return '<li><label class="habit"><input type="checkbox" data-h="' + i + '"' + (saved[i] ? " checked" : "") + "><span>" + h + "</span></label></li>";
+          }).join("") + "</ul>" +
+          '<button type="button" class="link-btn" id="reset">Limpar a semana</button></div>' +
+      "</div>" +
+      '<div class="card"><h3>Trocas que ajudam</h3><div class="table-scroll"><table class="swaps"><thead><tr><th scope="col">Em vez de</th><th scope="col">Tente</th></tr></thead><tbody>' +
+        L.swaps.map(function (s) { return "<tr><td>" + s[0] + "</td><td>" + s[1] + "</td></tr>"; }).join("") +
+      "</tbody></table></div></div>";
+
+    panel.setAttribute("aria-labelledby", "tab-" + current);
+
+    Array.prototype.forEach.call(panel.querySelectorAll("[data-plate]"), function (b) {
+      b.addEventListener("click", function () { plateIdx = +b.getAttribute("data-plate"); render(); });
+    });
+    Array.prototype.forEach.call(panel.querySelectorAll("[data-h]"), function (c) {
+      c.addEventListener("change", function () {
+        var arr = load("pratoleve:" + current) || [];
+        arr[+c.getAttribute("data-h")] = c.checked;
+        store("pratoleve:" + current, arr);
+        var n = L.habits.filter(function (_, i) { return arr[i]; }).length;
+        document.getElementById("prog").value = n;
+        document.getElementById("progTxt").textContent = n + " de " + L.habits.length;
+      });
+    });
+    document.getElementById("reset").addEventListener("click", function () {
+      store("pratoleve:" + current, []);
+      render();
+    });
+  }
+
+  function selectLevel(id, focus) {
+    current = id; plateIdx = 0;
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("data-level") === id;
+      t.setAttribute("aria-selected", on);
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    document.getElementById("nivelCalc").value = id;
+    render();
+    calc();
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () { selectLevel(t.getAttribute("data-level"), false); });
+    t.addEventListener("keydown", function (e) {
+      var i = ORDER.indexOf(current);
+      if (e.key === "ArrowRight") { e.preventDefault(); selectLevel(ORDER[(i + 1) % 3], true); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); selectLevel(ORDER[(i + 2) % 3], true); }
+    });
+  });
+
+  /* Calculadora: Mifflin-St Jeor */
+  var PROT = { iniciante: 1.2, intermediario: 1.6, avancado: 2.0 };
+  var NOTE = {
+    iniciante: "No nível iniciante, use estes números só como referência. Siga o prato e não precisa pesar nada.",
+    intermediario: "Use a mão como medida e confira a proteína do dia. Pesar é opcional.",
+    avancado: "Pese os alimentos por 2 a 4 semanas e ajuste pela média de peso de 7 dias."
+  };
+  var nf = new Intl.NumberFormat("pt-BR");
+  var nf1 = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var out = document.getElementById("resultado");
+
+  function val(id) { return parseFloat(document.getElementById(id).value); }
+
+  function calc() {
+    var sexo = document.getElementById("sexo").value;
+    var idade = val("idade"), peso = val("peso"), altura = val("altura");
+    var fat = val("atividade"), obj = val("objetivo");
+    var nivel = document.getElementById("nivelCalc").value;
+    if (!(idade >= 14 && idade <= 90 && peso >= 35 && peso <= 250 && altura >= 120 && altura <= 230)) {
+      out.innerHTML = '<p class="note">Confira os dados: idade entre 14 e 90 anos, peso entre 35 e 250 kg e altura entre 120 e 230 cm.</p>';
+      return;
+    }
+    var tmb = 10 * peso + 6.25 * altura - 5 * idade + (sexo === "m" ? 5 : -161);
+    var kcal = tmb * fat * obj;
+    var piso = sexo === "m" ? 1500 : 1200;
+    var ajustou = false;
+    if (kcal < piso) { kcal = piso; ajustou = true; }
+    kcal = Math.round(kcal / 10) * 10;
+    var prot = Math.round(peso * PROT[nivel]);
+    var gord = Math.round(peso * 0.8);
+    var carb = Math.max(0, Math.round((kcal - prot * 4 - gord * 9) / 4));
+    var agua = peso * 35 / 1000;
+    var pP = prot * 4 / kcal * 100, pG = gord * 9 / kcal * 100, pC = Math.max(0, 100 - pP - pG);
+
+    out.innerHTML =
+      '<div class="results">' +
+        '<div class="res kcal"><small>Calorias por dia</small><b>' + nf.format(kcal) + '</b><em>kcal</em></div>' +
+        '<div class="res"><small>Proteína</small><b>' + nf.format(prot) + ' g</b><em>' + Math.round(pP) + '% das calorias</em></div>' +
+        '<div class="res"><small>Carboidrato</small><b>' + nf.format(carb) + ' g</b><em>' + Math.round(pC) + '% das calorias</em></div>' +
+        '<div class="res"><small>Gordura</small><b>' + nf.format(gord) + ' g</b><em>' + Math.round(pG) + '% das calorias</em></div>' +
+        '<div class="res"><small>Água</small><b>' + nf1.format(agua) + ' L</b><em>cerca de 35 ml por kg</em></div>' +
+      '</div>' +
+      '<div class="mbar" role="img" aria-label="Divisão das calorias: proteína ' + Math.round(pP) + '%, carboidrato ' + Math.round(pC) + '%, gordura ' + Math.round(pG) + '%">' +
+        '<span style="width:' + pP + '%;background:var(--c-prot)"></span>' +
+        '<span style="width:' + pC + '%;background:var(--c-carb)"></span>' +
+        '<span style="width:' + pG + '%;background:var(--c-fat)"></span></div>' +
+      '<p class="muted">' + NOTE[nivel] + "</p>" +
+      (ajustou ? '<p class="note">Ajustamos para um mínimo diário seguro. Para um déficit maior, procure um nutricionista.</p>' : "");
+  }
+
+  document.getElementById("calc").addEventListener("input", calc);
+  document.getElementById("calc").addEventListener("submit", function (e) { e.preventDefault(); });
+
+  render();
+  calc();
+})();
+</script>
